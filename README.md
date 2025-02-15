@@ -1,58 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valentine Flower</title>
-    <style>
-        body {
-            text-align: center;
-            background-color: #f0e4d7;
-            font-family: 'Arial', sans-serif;
-        }
-        #flower {
-            width: 100px;
-            height: 100px;
-            background-color: #ff69b4;
-            border-radius: 50%;
-            margin: 50px auto;
-            display: none;
-        }
-        #bloom {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #ff69b4;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <h1>Will you be my valentine?</h1>
-    <button id="bloom">Yes, be my valentine</button>
-    <div id="flower"></div>
-    <p id="coffee"></p>
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
-    <script>
-        document.getElementById('bloom').addEventListener('click', function() {
-            const flower = document.getElementById('flower');
-            const coffee = document.getElementById('coffee');
-            
-            // Flower blooms
-            flower.style.display = 'block';
-            flower.style.transition = 'width 2s, height 2s';
-            flower.style.width = '200px';
-            flower.style.height = '200px';
+# Heart shape function
+def heart_shape(t):
+    x = 16 * np.sin(t) ** 3
+    y = 13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t)
+    return x, y
 
-            // Display coffee message
-            coffee.textContent = 'Let’s have coffee! ☕️';
-            coffee.style.color = '#8b4513';
-            coffee.style.fontSize = '24px';
-            coffee.style.marginTop = '20px';
-        });
-    </script>
-</body>
-</html>
+# Flower shape function
+def flower_shape(t, petals=6):
+    r = 10 + 3 * np.sin(petals * t)
+    x = r * np.cos(t)
+    y = r * np.sin(t)
+    return x, y
+
+# Create figure and axis
+fig, ax = plt.subplots()
+ax.set_xlim(-20, 20)
+ax.set_ylim(-20, 20)
+ax.set_aspect('equal')
+ax.axis('off')
+
+# Initialize heart and flower plots
+heart_t = np.linspace(0, 2 * np.pi, 1000)
+heart_x, heart_y = heart_shape(heart_t)
+flower_t = np.linspace(0, 2 * np.pi, 1000)
+flower_x, flower_y = flower_shape(flower_t)
+
+heart, = ax.plot([], [], 'r-', lw=2)
+flower, = ax.plot([], [], 'g-', lw=2)
+
+# Animation update function
+def update(frame):
+    # Update heart position
+    heart.set_data(heart_x + frame, heart_y + frame)
+    
+    # Update flower bloom
+    petal_count = 6 + frame // 10
+    flower_x, flower_y = flower_shape(flower_t, petals=petal_count)
+    flower.set_data(flower_x, flower_y)
+    
+    return heart, flower
+
+# Create animation
+ani = animation.FuncAnimation(fig, update, frames=range(100), interval=100, blit=True)
+
+# Save or show the animation
+# ani.save('heart_flower_animation.gif', writer='imagemagick')
+plt.show()
